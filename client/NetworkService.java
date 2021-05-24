@@ -1,0 +1,83 @@
+package sample.client;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+
+
+
+public class NetworkService {
+    private final String IP_ADDRESS = "localhost";
+    private final int PORT = 8189;
+    private Socket socket;
+    private DataInputStream in;
+    private DataOutputStream out;
+    private boolean connected;
+
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public NetworkService() {
+        try {
+            socket = new Socket(IP_ADDRESS, PORT);
+            out = new DataOutputStream(socket.getOutputStream());
+            in = new DataInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            connected = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void sendMessage(String message) {
+        try {
+            out.writeUTF(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getMessage() {
+
+        try {
+            if (in.readUTF().equals("/end")) {
+                disconnect();
+            }
+            return in.readUTF();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+            return "";
+        }
+
+
+    public void disconnect() {
+
+        try {
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        connected = false;
+
+        System.out.println("Клиент отключился от сервера");
+
+    }
+
+
+}
